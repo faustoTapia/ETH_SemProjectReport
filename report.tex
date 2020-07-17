@@ -1,0 +1,118 @@
+%==============================================================================
+% ETHASL - Template for student projects at the ASL
+% 2013.10: Péter Fankhauser
+% This template is based on the IMRT Latex template by Eric A. Mueller.
+%==============================================================================
+
+\documentclass[10pt,twoside,a4paper]{report}
+
+\usepackage{pdfpages}
+
+% ETHASL package
+% TODO Choose options according to your project
+% som/bt/st/mt: Studies on Mechatronics, Bachelor Thesis, Semester Thesis, Master Thesis
+% fs/hs: Spring term, Autumn term
+% german/english: German/English
+
+\usepackage[st,fs,english]{packages/ethasl}
+
+% Activate for german language
+%\usepackage{german}
+%\usepackage{ae}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX preamble
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{preambles/asl_preamble}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% TODO Add your title
+\title{Sensing and characterization of the motor dynamics on an omnidirectional flying vehicle}
+%\subtitle{bla bla bla}
+
+% TODO Add name of the authors
+\studentA{Fausto Tapia}
+%\studentB{Student 2}
+% \studentC{Student 3}
+
+% TODO Add name of the supervisors
+\supervisionA{Weixuan Zhang}
+\supervisionB{Maximilian Brunner}
+%\supervisionC{Supervisor C}
+
+% TODO Change if necessary
+\projectYear{\the\year} % This year
+%\projectYear{\advance\year by -1 \the\year\advance\year by 1} % Last year
+
+\maketitle
+\pagestyle{plain}
+\pagenumbering{roman}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Declaration of originality
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{empty}
+% TODO Modify placeholders in declaration.tex
+%\input{chapters/declaration}
+\includepdf[pagecommand={}]{chapters/declaration-originality_printed.pdf}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table on contents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Table of Contents depth (TODO change if necessary)
+\setcounter{tocdepth}{2}
+
+\tableofcontents
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Chapters standard
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{chapters/preface}
+\cleardoublepage
+\input{chapters/abstract}
+\cleardoublepage
+\input{chapters/symbols}
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Chapters custom
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{fancy}
+\pagenumbering{arabic}
+
+% TODO Add your own chapters here
+\input{chapters/01-introduction}
+\cleardoublepage
+\input{chapters/02-literature_review}
+\cleardoublepage
+\input{chapters/03-experimental_setup}
+\cleardoublepage
+\input{chapters/04-esc_characterization}
+\cleardoublepage
+\input{chapters/05-conclusions_recommendations}
+\cleardoublepage
+\input{chapters/chapter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{bibliography/IEEEtranN}
+\bibliography{bibliography/references}
+\addcontentsline{toc}{chapter}{Bibliography}
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\input{chapters/appendix_text}
+\cleardoublepage
+\input{chapters/appendix_datasheets}
+\end{document}
