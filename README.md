@@ -1,1 +1,1 @@
-# ETH_SemProjectReport
+ETH Semester Project: ESC characterization

@@ -60,9 +60,9 @@ All of these protocols are based on Pulse width modulation given a maximum and a
 \begin{center}
  \caption{ESC protocols' speeds}\vspace{1ex}
  \label{tab:tab_escs}
- \begin{tabular}{l|ccc}
+ \begin{tabular}{l|rrr}
  \hline
-Protocol & Type & Pulse width range [$\mu s$] & Maximum Update Rate [kHz] \\ \hline \hline
+Protocol & Type & Pulse width range [$\mu s$] & Max Update Rate [kHz] \\ \hline \hline
 PWM                 & Analog & 1000 - 2000  & 0.490\\
 Oneshot125          & Analog & 125 - 250    & 4\\
 Oneshot42           & Analog & 42 - 84      & 12\\
@@ -80,6 +80,16 @@ UAVCAN              & Digital & NA           & NA\\
 
 
 \subsubsection{Digital Protocols}
+Even though most of these protocols are widely known as digital, the true purely digital protocol is UAVCAN. The rest define certain specific pulse time durations to high or low. Dshot will be explained thoroughly in particular given that it's the basis of all the other methods but UAVCAN.
+\newline
+\textit{Dshot: } This method consists of a 16-bit packet streamed continuously. Each bit is encoded as a pulse with one of to widths, depending on the pulse width version. Figure \ref{fig:oneshot_dshot} show a comparison of the Dshot signals with PWM signals and Figure XXXXX shows the information organization in each packet. The packet is divided into three sections as shown in Figure : 
+\begin{itemize}
+    \item Throttle command: Consists of 11 bits (Decimal values 0 -2047). Commands in the range [0,47] are status request commands whereas values in the range [48,2047] encode a 2000 levels throttle command.
+    \item Telemetry request: When this bit is high, telemetry is hight, the ESC is sends a telemetry information packet from the to the FC. Including information such as: Motor Electrical RPM, ESC Temperature, Supply Voltage, Current (Available only in certain ESCs).
+    \item Cyclic Redundancy Check (CRC): Used to check for data corruption during transmission.
+\end{itemize}
+
+
 
 \section{Pixhawk 4 and PX4 architecture}
 Flight controllers are the core component of a UAV as they order the ESCs to provide rotor speeds that stabilize and move the aircraft. 
