@@ -47,13 +47,13 @@ The circuits that run the BLDC motors are commonly known as Electronic Speed Con
 ESCs need to communicate with the FC to receive throttle commands and in some cases they also send status messages. Hence, some protocols have been used and other have been developed in the context of UAVs.
 
 \subsubsection{Analog Protocols}
-All of these protocols are based on Pulse width modulation given a maximum and a minimum pulse width to be set as maximum and minimum throttle. Hence, these protocols are commonly called RCPWM. Thee different protocols in this category merely differ in the pulse period. Figure \ref{fig:oneshot_dshot} depicts these kind of signals on the top and Table \ref{tab:tab_escs}  shows their transmission parameters.
+All of these protocols are based on Pulse width modulation given a maximum and a minimum pulse width to be set as maximum and minimum throttle. Hence, these protocols are commonly called RCPWM. Thee different protocols in this category merely differ in the pulse period. Figure \ref{fig:oneshot} depicts these kind of signals on the top and Table \ref{tab:tab_escs}  shows their transmission parameters.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{images/oneshot_dshot.png}
-    \caption{Oneshot vs Dshot comparison \cite{BackyardRobotics2018}}
-    \label{fig:oneshot_dshot}
+    \includegraphics[width=0.8\textwidth]{images/oneshot_sketch.png}
+    \caption{Oneshot protocol \cite{BackyardRobotics2018}}
+    \label{fig:oneshot}
 \end{figure}
 
 \begin{table}
@@ -62,32 +62,71 @@ All of these protocols are based on Pulse width modulation given a maximum and a
  \label{tab:tab_escs}
  \begin{tabular}{l|rrr}
  \hline
-Protocol & Type & Pulse width range [$\mu s$] & Max Update Rate [kHz] \\ \hline \hline
-PWM                 & Analog & 1000 - 2000  & 0.490\\
-Oneshot125          & Analog & 125 - 250    & 4\\
-Oneshot42           & Analog & 42 - 84      & 12\\
-Multishot           & Analog & 5 - 25       & 40\\
-Dshot150            & Digital & 106.8        & 9\\
-Dshot300            & Digital & 53.4         & 18\\
-Dshot600            & Digital & 26.7         & 37\\
-Dshot1200           & Digital & 13.4         & 75\\
-Bidirectional Dshot & Digital & Dshot values & Dshot values \\
-Proshot             & Digital & Dshot values & Dshot values\\
-UAVCAN              & Digital & NA           & NA\\
+Protocol & Type & Pulse width range [$\mu s$]  & Max Update Rate [kHz] \\ \hline \hline
+PWM                 & Analog & 1000 - 2000      & 2000\\
+Oneshot125          & Analog & 125 - 250        & 250\\
+Oneshot42           & Analog & 42 - 84          & 84\\
+Multishot           & Analog & 5 - 25           & 40\\
+Dshot150            & Digital & 2.5, 5$^*$          & 9\\
+Dshot300            & Digital & 1.25, 2.5$^*$       & 18\\
+Dshot600            & Digital & 0.625, 1.25$^*$     & 37\\
+Dshot1200           & Digital & 0.312, 0.625$^*$    & 75\\
+Bidirectional Dshot & Digital & Same as Dshot   & Same as Dshot \\
+Proshot             & Digital & Same as Dshot   & Same as Dshot\\
+UAVCAN              & Digital & NA              & NA\\
  \end{tabular}
 \end{center}
+\footnotesize{$^*$ Pulses can only take either of the two values (Digital)}
 \end{table}
+
 
 
 \subsubsection{Digital Protocols}
 Even though most of these protocols are widely known as digital, the true purely digital protocol is UAVCAN. The rest define certain specific pulse time durations to high or low. Dshot will be explained thoroughly in particular given that it's the basis of all the other methods but UAVCAN.
 \newline
-\textit{Dshot: } This method consists of a 16-bit packet streamed continuously. Each bit is encoded as a pulse with one of to widths, depending on the pulse width version. Figure \ref{fig:oneshot_dshot} show a comparison of the Dshot signals with PWM signals and Figure XXXXX shows the information organization in each packet. The packet is divided into three sections as shown in Figure : 
+\textit{Dshot: } This method consists of a 16-bit packet streamed continuously. Each bit is encoded as a pulse with one of to widths, depending on the pulse width version. Figure \ref{fig:dshot} shows the typical DShot signal and the information organization in each packet. The packet is divided into three sections: 
 \begin{itemize}
     \item Throttle command: Consists of 11 bits (Decimal values 0 -2047). Commands in the range [0,47] are status request commands whereas values in the range [48,2047] encode a 2000 levels throttle command.
-    \item Telemetry request: When this bit is high, telemetry is hight, the ESC is sends a telemetry information packet from the to the FC. Including information such as: Motor Electrical RPM, ESC Temperature, Supply Voltage, Current (Available only in certain ESCs).
+    \item Telemetry request: When this bit is high, telemetry is hight, the ESC is sends a telemetry information packet from the to the FC. Including information such as: Motor Electrical RPM, ESC Temperature, Supply Voltage, Current (Available only in certain ESCs). This telemetry message is sent via another pin using Universal Asynchronous Receiver/Transmitter protocol (UART) at 115200 baudrate.
     \item Cyclic Redundancy Check (CRC): Used to check for data corruption during transmission.
 \end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/dshot_sketch.png}
+    \caption{Dshot Signal Structure \cite{Speedgoat2020}}
+    \label{fig:dshot}
+\end{figure}
+
+\textit{Bidirectional Dshot:} This protocol uses exactly the same signal from the ESC to the FC. The difference is the medium of transfer for the Telemetry signal. In this case, the telemetry packet is sent to the FC through the same throttle pin.
+\newline
+
+\textit{Proshot: } The data side of this protocol works the same way as Dshot. The 16 bit digital signal is set as a 4 pulse train where each pulse can encode 4 pulse widths (as opposed to only 2 in Dshot).
+\newline
+
+\textit{UAVCAN: } As its name suggests, this a full level software platform based on the Controller Area Network (CAN) bus. It supports two-way communication between multiple agents over a twisted pair wire. The signals sent are merely digital (Only high and low voltages at same duration). The protocol packet convention is illustrated in Figure \ref{fig:canbus}. Where the elements are explained in \cite{Corrigan2016} as:
+\begin{itemize}
+    \item SOF (1 bit): Dominant Start of Frame bit. Used for synchronization.
+    \item Identifier (11-bits): Establishes message priority.
+    \item RTR (1 bit): Remote Transmission Request. Asks next node for transmission.
+    \item IDE (1 bit): Identifies if standard CAN is used or not.
+    \item r0 (1 bit): Reserved.
+    \item DLC (4 bits): Data length. Number of bytes transmitted.
+    \item Data (1-64 bits): Actual data transmitted.
+    \item CRC (16 bits): Cyclic redundancy check.
+    \item ACK (1 bit): Indicates error free reception.
+    \item EOF (7 bits): Indicates end of packet.
+    \item IFS (7 bits): Time required to buffer data.
+\end{itemize}
+
+Hence, communication in this protocol is very reliable on the expense of having to send many extra bits for agent coordination and error checking. The maximum bitrate allowed in this protocol is $1Mbit/s$. However, its data transfer rate is decreased by the number of agents connected together and the amount of data each sends. If only one ESC was connected with the FC, the absolute maximum theoretical data rate would be 4.3kHz. Another problem that could arise when using this protocol is significant delays between each rotor command especially between the first motor and the last motor to receive commands. This is because each agent needs to queue when receiving and sending messages as the bus is shared.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/canbus_sketch.png}
+    \caption{CAN bus protocol \cite{Corrigan2016}}
+    \label{fig:canbus}
+\end{figure}
 
 
 
@@ -95,3 +134,19 @@ Even though most of these protocols are widely known as digital, the true purely
 Flight controllers are the core component of a UAV as they order the ESCs to provide rotor speeds that stabilize and move the aircraft. 
 
 \section{Related Work on ESCs characterization}
+
+There have been some studies regarding modeling and characterization BLDC motors driving hardware, given the popularity of their use in UAVs in the last decade. There have been studies in both efficiency and estimation modeling for their dynamic behavior. 
+\subsection{Efficiency}
+Regarding efficiency estimation, several power loss models have been developed based on non-ideal electronic components in the ESCs. Indeed, \cite{Gong2017,Gong2018} propose linear and non-linear models for ESC efficiency. There, it is shown that the efficiency changes depending on voltage powering the ESC and current provided to the motor.  Furthermore, \cite{Millett2012, Keskar} define complete models of power loss calculation for ESCs driving BLDC motors and \cite{Graovac2006} models MOSFET power losses. These factors were accounted for in a more generalized model described in \cite{Tritium2013} and summarized in Equation \ref{eq:power_loss}.
+
+\begin{equation}
+  P_{loss}=R_{eq}I_o^2+(\alpha I_o+\beta)V_{bus}+Cf_{eq}V_{bus}^2\, .
+    \label{eq:power_loss}
+\end{equation}
+
+In this equation, $R_{eq}$ represents the MOSFET on resistance usually given in data-sheets, $I_o$ the output current, $V_bus$ the battery voltage, $\alpha$ and $\beta$ are model values and $Cf_{eq}$ is the equivalent capacitance frequency product for overall circuit.
+
+\subsection{Modeling for Control}
+Another stream of research is dedicated to determine the input-output characteristics of ESC-BLDC motor behavior. 
+\newline
+Direct Throttle to Thrust mapping is subject of investigation by many sources. A linear first order differential relationship about operating points is proposed by \cite{Yoon2015}, with only two determined parameters: gain and time constant. 
