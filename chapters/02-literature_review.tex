@@ -128,11 +128,6 @@ Hence, communication in this protocol is very reliable on the expense of having 
     \label{fig:canbus}
 \end{figure}
 
-
-
-\section{Pixhawk 4 and PX4 architecture}
-Flight controllers are the core component of a UAV as they order the ESCs to provide rotor speeds that stabilize and move the aircraft. 
-
 \section{Related Work on ESCs characterization}
 
 There have been some studies regarding modeling and characterization BLDC motors driving hardware, given the popularity of their use in UAVs in the last decade. There have been studies in both efficiency and estimation modeling for their dynamic behavior. 
@@ -149,4 +144,22 @@ In this equation, $R_{eq}$ represents the MOSFET on resistance usually given in 
 \subsection{Modeling for Control}
 Another stream of research is dedicated to determine the input-output characteristics of ESC-BLDC motor behavior. 
 \newline
-Direct Throttle to Thrust mapping is subject of investigation by many sources. A linear first order differential relationship about operating points is proposed by \cite{Yoon2015}, with only two determined parameters: gain and time constant. 
+
+Direct Throttle to Thrust mapping is subject of investigation by many sources. A linear first order differential relationship about operating points is proposed by \cite{Yoon2015}, with only two determined parameters: gain and time constant. This model was further improved by \cite{Torres2020} by introducing a dead-time parameter to account for communication delays and buffer timing which makes it non-linear.
+Supply Voltage is show as another parameter that affects ESC-Throttle mapping in \cite{Szafranski2014} where they define a linear MIMO representation with voltage and throttle as inputs; and current and thrust as output, including non-linear elements.
+\newline
+
+Other studies have instead focused on the Throttle - rotor speed correspondence. In this category, \cite{Prakosa2019} encountered non-linear steady state mapping. Furthermore, one of the first models that incorporated voltage is given by \cite{Moutinho2015} where the steady state value is defined rotor speed is defined as proportional to the voltage and a first order polynomial of the throttle value, and the dynamics still as a first order differential function, these relationships are detailed in Equations \ref{eq:rpm_V_throt}.
+
+\begin{equation}
+ \frac{\omega}{V}= at +b  \quad and \quad \frac{\omega /V}{t}=\frac{k}{\tau s+1}\, .
+ \label{eq:rpm_V_throt}   
+\end{equation}
+
+Where $a$ and $b$ are linear fit parameters based on linear fit of steady state data, $k$ and $\tau$ are gain and time constant. $\omega$ represents rotor speed, $V$ battery voltage and $t$ throttle signal.
+\newline
+
+Another stream of investigation in this area focused on frequency methods to identify the responses to throttle commands. Chirp sinusoid input throttle signals are used in \cite{Xiang2015} and the rotor speed output is analyzed. They define a first order differential relation for the ESC output voltage and the utilize a sophisticated motor model to transfer as a transfer function between effective voltage on the motor and rotor speed. Their model even includes cogging modeling, specially important at low speeds. Their complete model is third order differential.
+Besides, \cite{Wu2018} uses steady state response and frequency response using staircase and sinusoidal chirp input throttle signals, but analyses the thrust and torque generated. The model is semi-empirical and includes non-linearities such as torque friction, drag and rotor inertia. However, it assumes a PI loop in the ESC to purpose a model, which is not always the case.
+
+The last stream of investigation in this domain, was merely as data analysis. This includes \cite{Kotarski2017} who analyzed thrust, rotor speed and power outputs, which where presented graphically. Additionally \cite{Sulewski2018} also shows graphical representations of efficiency, power, current, voltage, thrust and torque for different thrust inputs.
