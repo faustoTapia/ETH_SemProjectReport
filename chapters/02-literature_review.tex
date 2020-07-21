@@ -47,7 +47,7 @@ The circuits that run the BLDC motors are commonly known as Electronic Speed Con
 ESCs need to communicate with the FC to receive throttle commands and in some cases they also send status messages. Hence, some protocols have been used and other have been developed in the context of UAVs.
 
 \subsubsection{Analog Protocols}
-All of these protocols are based on Pulse width modulation given a maximum and a minimum pulse width to be set as maximum and minimum throttle. Hence, these protocols are commonly called RCPWM. Thee different protocols in this category merely differ in the pulse period. Figure \ref{fig:oneshot} depicts these kind of signals on the top and Table \ref{tab:tab_escs}  shows their transmission parameters.
+All of these protocols are based on Pulse width modulation given a maximum and a minimum pulse width to be set as maximum and minimum throttle. Hence, these protocols are commonly called RCPWM. Thee different protocols in this category merely differ in the pulse period. Figure \ref{fig:oneshot} depicts these kind of signals on the top and Table \ref{tab:tab_esc_prot}  shows their transmission parameters.
 
 \begin{figure}
     \centering
@@ -59,7 +59,7 @@ All of these protocols are based on Pulse width modulation given a maximum and a
 \begin{table}
 \begin{center}
  \caption{ESC protocols' speeds}\vspace{1ex}
- \label{tab:tab_escs}
+ \label{tab:tab_esc_prot}
  \begin{tabular}{l|rrr}
  \hline
 Protocol & Type & Pulse width range [$\mu s$]  & Max Update Rate [kHz] \\ \hline \hline
@@ -81,7 +81,7 @@ UAVCAN              & Digital & NA              & NA\\
 
 
 
-\subsubsection{Digital Protocols}
+\subsubsection{Digital Protocols} \label{sec: esc_dig_prot}
 Even though most of these protocols are widely known as digital, the true purely digital protocol is UAVCAN. The rest define certain specific pulse time durations to high or low. Dshot will be explained thoroughly in particular given that it's the basis of all the other methods but UAVCAN.
 \newline
 \textit{Dshot: } This method consists of a 16-bit packet streamed continuously. Each bit is encoded as a pulse with one of to widths, depending on the pulse width version. Figure \ref{fig:dshot} shows the typical DShot signal and the information organization in each packet. The packet is divided into three sections: 
