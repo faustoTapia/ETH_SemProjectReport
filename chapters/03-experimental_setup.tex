@@ -28,7 +28,9 @@ The most important component for the analysis in this project is the ESC. Theref
 \footnotesize{NOTE: All ESCs that support Dshot in this table support all analog protocols and Bidirectional Dshot}
 \end{table}
 
-Therefore, we can see that there are two trends of high-performance ESCs. The first one relates to the most modern ESCs used in drone racing. They are very similar since they are mostly manufactured to use the BlHeli\_32 firmware. This firmware, allows for multiple parameter modification via the software BlHeliSuite (see Appendix \ref{sec:firm_blheli} for instructions). Given their modularity, they can be made into very small boards. For instance, they now come in 4 in 1 boards (i.e. one board includes 4 ESCs). The other group of high-performing ESCs use UAVCAN as communication protocol with the FC. This gives the advantage of less cabling. They use FOC which makes them more efficient than Sine Modulation versions specially at low rotor speed (below 1000 RPM). These also have possibility of on-board speed control, but it does not include any feed-forward prior.  The Holybro Tekko32 F3 ESC was then selected for investigation due to the wide variety of protocols it supports, it's multiple rotor support, good heat-sinking and flexibility to change parameters. Please refer to Section \ref{sec: esc_dig_prot} for a more thorough description of Dshot, Bidirectional Dshot and UAVCAN protocols.
+Therefore, we can see that there are two trends of high-performance ESCs. The first one relates to the most modern ESCs used in drone racing. They are very similar since they are mostly manufactured to use the BlHeli\_32 firmware. This firmware, allows for multiple parameter modification via the software BlHeliSuite (see Appendix \ref{sec:firm_blheli} for instructions). Given their modularity, they can be made into very small boards. For instance, they now come in 4 in 1 boards (i.e. one board includes 4 ESCs). The other group of high-performing ESCs use UAVCAN as communication protocol with the FC. This gives the advantage of less cabling. They use FOC which makes them more efficient than Sine Modulation versions specially at low rotor speed (below 1000 RPM). These also have possibility of on-board speed control, but it does not include any feed-forward prior.  The Holybro Tekko32 F3 ESC was then selected for investigation due to the wide variety of protocols it supports, it's multiple rotor support, good heat-sinking and flexibility to change parameters.
+
+ Please refer to Section \ref{sec: esc_dig_prot} for a more thorough description of Dshot, Bidirectional Dshot and UAVCAN protocols.
 
 \subsection{Overall setup}
 
@@ -38,12 +40,21 @@ The rig shown in Figure \ref{fig:exp_setup} was setup for testing purposes. The 
 	\item 1 clockwise Hobbyking Propeller 9in diameter 4.7in pitch.
 	\item 1 counter-clockwise Hobbyking Propeller 9in diameter 4.7in pitch.
 	\item 1 Tekko32 F3 Metal ESC.
-	\item $1\mu F$ capacitor.
+	\item $10\mu F$ capacitor.
 	\item 1 6S LiPo battery.
-	\item Pixhawk 4 flight controller
+	\item Pixhawk 4 flight controller.
 	\item Laptop (running Ubuntu 18.04 for firmware compilation).
 	\item Support towers to attach motors.
 \end{itemize}
+
+Besides, the measurement equipment used was:
+
+\begin{itemize}
+		\item 10A rated DC ammeter.
+		\item 10A rated DC power source.
+		\item Manual optical tachometer.
+\end{itemize}
+
 
 \begin{figure} 
     \centering
@@ -56,7 +67,7 @@ The rig shown in Figure \ref{fig:exp_setup} was setup for testing purposes. The 
 \subsection{Electrical Wiring}
 Given the non-ambiguous nature of the Dshot protocol wiring, it is important to show how it should be done correctly. Hence, Figure \ref{fig:esc_wiring} show this setup in more detail.
 \newline
-Note that it is crucial to have the decoupling capacitor across the Analog to Digital Converter (ADC) of the Pixhawk. The reason to have it is to filter the noise induced by high frequency Dshot signals (on yellow). In fact, with no filtering, the ADC line is mostly composed of noise. A value of $0.1\mu F$ showed to attenuate this noise more than enough. It is also key to use ADC1\_SPARE\_1 (not ADC1\_SPARE\_2) as it has a lower reference voltage of 3.3V against 6.6V, which leads to higher resolution.
+Note that it is crucial to have the decoupling capacitor across the Analog to Digital Converter (ADC) of the Pixhawk. The reason to have it is to filter the noise induced by high frequency Dshot signals (on yellow). In fact, with no filtering, the ADC line is mostly composed of noise. A value of $10\mu F$ showed to attenuate this noise more than enough. It is also key to use ADC1\_SPARE\_1 (not ADC1\_SPARE\_2) as it has a lower reference voltage of 3.3V against 6.6V, which leads to higher resolution.
 \newline
 It is also important to mention that the ground wire can be connected to the ground pin in any port (usually the last pin). Further details on wiring can be seen in Appendix \ref{sec:px4_instructions}
 
@@ -94,7 +105,15 @@ As developing tools for testing and firmware configuration, three pieces of soft
 \newline
 
 \section{Software developed}
-The main aim of software development during this project was to drive motors using the Dshot protocol and obtain the telemetry packet to analyze responses and the feasibility of feedback control.
+The main aim of software development during this project was to drive motors using the Dshot protocol and obtain the telemetry packet to analyze responses and the feasibility of feedback control. The structure of data flow is color coded in Figure \ref{fig:data_flow}. Gray represents hardware, blue shows software packages, orange indicates forward control data, green represents backward measured data. Lastly, it shows the protocols used for data transfer  at the bottom. Furthermore, the source code can be found at: \newline
+\url{https://github.com/faustoTapia/px4_sem_project.git}.
+
+\begin{figure} 
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/data_flow_diagram.PNG}
+    \caption{General Data Flow}
+    \label{fig:data_flow}
+\end{figure}
 
 \subsection{Existent software}
 The software developed for this project was built on top of PX4 v1.10. The components of interest from PX4 are described below.
@@ -106,15 +125,42 @@ The software developed for this project was built on top of PX4 v1.10. The compo
 \textit{Telemetry: } "telemetry.cpp". There is a telemetry handler that receives the serial stream and decodes it in the appropriate format. Since the data from all motors is shared through same telemetry line, they have to be multiplexed. This handler performs the multiplexing in a blocking manner for up to 25ms if no message is received.
 \newline
 
-\subsection{Elements added/modified}
-\textit{Mixer: } "quad\_x\_v2.main". This mixer provides pass-through mixing, that is, it takes a control command and directly passes it as a percentage throttle to be commanded to the ESC. Furthermore, in order to be loaded, it needs to be assigned to an airframe that itself is called on start-up within the PX4 framework. To do so, the "4001\_quad\_x" airframe was modified to pick the new mixer.
+\subsection{Elements added}
+
+\textit{Mixer: } "quad\_x\_v2.main". This mixer provides pass-through mixing, that is, it takes a control command and directly passes it as a percentage throttle to be commanded to the ESC. The mixer is configured to receive inputs from the "actuator\_controls\_0" topic. Furthermore, in order to be loaded, it needs to be assigned to an airframe that itself is called on start-up within the PX4 framework. To do so, the "4001\_quad\_x" airframe was modified to pick the new mixer.
 \newline
 
 \textit{Dshot controller: } "dshot\_controller.cpp". This is the core of the functionalities developed during this project.  It publishes to the "actuator\_controls\_0" topic at 400Hz, derived from the "vehicular\_angular\_velocity" topic. Furthermore, it provides with user interaction through the Nutshell. The allowed commands are:
 \begin{itemize}
-	\item static throttle command to any of the 4 motors or all with non-blocking behavior.
+	\item Listen ESC, reporting current telemetry data including RPM, voltage and temperature.
+	\item Static throttle command to any of the 4 motors or all with non-blocking behavior.
 	\item Sinusoidal wave of desired amplitude and period.Period can be changed from 10ms to 10000ms.
 	\item Random waveform at a certain offset.
 	\item Sinusoidal sweep (chirp) signal.
 \end{itemize}
-A thorough explanation of how setup and utilize this tool is found in Appendix \ref{sec:px4_instructions}.
+A thorough explanation of how to setup and utilize this tool is found in Appendix \ref{sec:px4_instructions}.
+\newline
+
+The topic of interest is "esc\_status" and it is published as soon as it receives data from all motors. On the ESC side, it was found that Dshot telemetry provided by BlHeli\_32 only works at 115200 bits/s baud-rate and it is not a  modifiable parameter. Given the size of the data packet, a telemetry rate of 300 Hz was achieved when using only one motor. This frequency would decrease inverse proportionally with the number of individual ESCs connected (number of motors). This is mainly because each the serial telemetry line is shared. Hence for 4 motors, the data-rate obtained was 75Hz. 
+\newline
+
+A graphical representation of the functionalities added to PX4 is shown in Figure \ref{fig:sorftware_arch}. Note that the standard PX4 driver procedure is that mixers are instantiated within a driver but with an argument being the driver itself. This in order to encapsulate actuator controls inside a driver while being able to use the same mixers for multiple kinds of drivers.
+
+\begin{figure} 
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/software_architecture.PNG}
+    \caption{Software modules modules architecture}
+    \label{fig:sorftware_arch}
+\end{figure}
+
+\section{Setup limitations}
+Given the chosen hardware and firmware, specially the restriction to use a Pixhawk 4 flight controller gave a couple of limitations in when integrating the system. The most important ones are listed below:
+\begin{itemize}
+	\item Digital Dshot based protocols imply relatively high CPU usage in the micro-controller. Therefore, the software implementations use Direct Memory Access (DMA) to enable fast enough scheduling to write Dshot signals. In the case of the PX4 it only has 2 DMAs that can each be used to run 4 Dshot signal generation ports. Hence, the PX4 implementation allows for immediate 4 motor support but with some modifications up to 8 motors.
+
+	\item The more sophisticated digital protocol Bidirectional Dshot would be the way of avoiding telemetry line sharing that happens in regular Dshot. Therefore, increasing the telemetry speed significantly. However, PX4 does not support this protocol and it seems like it does not want to move in that direction.
+
+
+
+\end{itemize}
+
