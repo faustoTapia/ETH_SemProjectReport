@@ -13,6 +13,7 @@ A BLDC motor can be 1, 2 or 3-phase. However, the most efficient version at high
 \end{figure}
 
 \subsection{BLDC motor driving methods}
+\label{sec:bldc_driving_methods}
 Two configurations can be used to run BLDC motors as mentioned in \cite{Mogensen_ESC_Motor_Control2016}, both based on Pulse Width Modulation (PWM). These are Trapezoidal and Sinusoidal. They differ in the ideal driving voltage wave-forms to use when driving the motor coils. In both cases, the best performing phase shift between phases is 120\textdegree.  The effective instantaneous voltage in each coil is a fraction of the DC power supply. PWM approximates this fraction by providing a pulsing signal with a corresponding duty cycle (fraction of time the signal is high). 
 To generate these PWM signals from a DC power source, power MOSFETs are used in bridge configurations. The specific configuration used for BLDC motors is shown in Figure \ref{fig:bldcm}
 \newline
