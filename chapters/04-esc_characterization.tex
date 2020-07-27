@@ -7,7 +7,7 @@ This section will introduce the different experiments realized to characterize t
 \end{itemize}
 
 \section{Sensing Evaluation}
-The purpose of this experiment is to determine the quality of the measurements that the ESC provides. The focus is on rotor speed measurements and current sensing. For both experiments in this section (rpm and current sensor validation), a staircase throttle signal was sent and the steady state values were used. Figure \ref{fig:sensing_validation} shows typical experiment data for this section.
+The purpose of this experiment is to determine the quality of the measurements that the ESC provides. The focus is on rotor speed measurements and current sensing. For both experiments in this section (rpm and current sensor validation), a staircase throttle signal was sent and the steady state values were used. Figure \ref{fig:sensing_validation} shows typical experiment data for this section. All experiments were performed with the same set of propellers described in the previous section.
 
 \begin{figure} 
     \centering
@@ -50,8 +50,9 @@ As the measurement is shunt resistor based, it is expected that the relationship
 \section{Motor-drive dynamics}
 
 \subsection{RPM-Voltage-Throttle relation}
-As shown in previous literature, the rotor speed also varies with respect to battery voltage. Therefore, an experiment similar to the one described in Figure \ref{fig:sensing_validation} was set up for different battery voltages that were varied using a power supply. After analyzing the data, one can see that even though the voltage does not change the output as dramatically as throttle does, the variation is significant for instance it appears linear when looking at the cross-section. It is also coherent with theory as higher voltages generate linearly related higher currents and therefore higher induced magnetic field. In the end allowing for higher torques and steady state rotor speed.
-Furthermore, a significant non-linearity can be observed in the dependence from throttle. The reason for this is the way the ESC approximates driving voltages (switching transistors) because it introduces high frequency current components that can pass through parasitic capacitances in the circuit. Therefore, augmenting from the linear throttle dependency model explained in \cite{Moutinho2015}, the quadratic model in Equation \ref{eq:rmp_V_throt_quad} is introduced to account for non-linearities. The parameters were found using Non-linear least squares optimization method given the test data.
+As shown in previous literature, the rotor speed also varies with respect to battery voltage. Therefore, an experiment similar to the one described in Figure \ref{fig:sensing_validation} was set up for different battery voltages that were varied using a power supply. After analyzing the data, one can see that even though the voltage does not change the output as dramatically as throttle does, the variation is significant for instance it appears linear when looking at the cross-section. It is also coherent with theory as higher voltages generate linearly related higher currents and therefore higher induced magnetic field. In the end, this allows for higher torques and steady state rotor speed.\\
+
+Furthermore, a significant non-linearity can be observed in the dependence from throttle. The reason for this is the way the ESC approximates driving voltages (switching transistors) because it introduces high frequency current components that can pass through parasitic capacitances and the MOSFETs body diodes in the circuit. Therefore, augmenting from the linear throttle dependency model explained in \cite{Moutinho2015}, the quadratic model in Equation \ref{eq:rmp_V_throt_quad} is introduced to account for non-linearities. The parameters were found using Non-linear least squares optimization method given the test data.
 \begin{equation}
 \begin{split}
  \omega &= (at^2 +bt+c)V\, .\\

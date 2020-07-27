@@ -1,7 +1,7 @@
 \chapter{Experimental Setup}
 \section{Equipment}
 \subsection{ESC Assessment}
-The most important component for the analysis in this project is the ESC. Therefore, a thorough assessment of different ESCs and their firmware was made. The criteria to pick the particular board took into account that it is to be used with the Voliro OMAV at the ASL in t ETH Zurich depicted in Figure \ref{fig: mav_photo}. The parameters accounted for as well as the top rated ESCs are shown in Table \ref{tab:tab_escs}. Further analyzed ESCs are show in Appendix \ref{sec:appendix_escs}.
+The most important component for the analysis in this project is the ESC. Therefore, a thorough assessment of different ESCs and their firmware was made. The criteria to pick the particular board took into account that it is to be used with the Voliro OMAV at the ASL in ETH Zurich depicted in Figure \ref{fig: mav_photo}. The parameters accounted for as well as the top rated ESCs are shown in Table \ref{tab:tab_escs}. Further analyzed ESCs are show in Appendix \ref{sec:appendix_escs}.
 
 \begin{table}
 \small
@@ -65,7 +65,7 @@ Besides, the measurement equipment used was:
 
 
 \subsection{Electrical Wiring}
-Given the non-ambiguous nature of the Dshot protocol wiring, it is important to show how it should be done correctly. Hence, Figure \ref{fig:esc_wiring} show this setup in more detail.
+Given the non-ambiguous nature of the Dshot protocol wiring, it is important to show how it should be done correctly. Hence, Figure \ref{fig:esc_wiring} shows this setup in more detail.
 \newline
 Note that it is crucial to have the decoupling capacitor across the Analog to Digital Converter (ADC) of the Pixhawk. The reason to have it is to filter the noise induced by high frequency Dshot signals (on yellow). In fact, with no filtering, the ADC line is mostly composed of noise. A value of $10\mu F$ showed to attenuate this noise more than enough. It is also key to use ADC1\_SPARE\_1 (not ADC1\_SPARE\_2) as it has a lower reference voltage of 3.3V against 6.6V, which leads to higher resolution.
 \newline
@@ -88,10 +88,10 @@ As developing tools for testing and firmware configuration, three pieces of soft
 \textit{QGroundControl} is the Ground station software platform used with PX4. In general it allows to deploy full drones to different types of missions. It also 
 \newline
 
-\textit{BlHeliSuite} is the main software used to update the firmware of ESCs running with BlHeli\_32. It not only allows to download newer versions, but also let's change parameters of the ESC behavior. These include:
+\textit{BlHeliSuite} is the main software used to update the firmware of ESCs running with BlHeli\_32. It not only allows to download newer versions, but also allows changing parameters of the ESC behavior. These include:
 
 \begin{itemize}
-	\item Rump-up power: Limits power on startup and low RPM.
+	\item Ramp-up power: Limits power on startup and low RPM.
 	\item Motor timing: determines when angular positions with respect to magnetic poles when commutation happen. Beneficial to change with high inductance motors.
 	\item PWM frequency: Modulation frequency to switch MOSFETs.
 	\item Demag compensation: detects and compensates for high inductance motors.
@@ -105,13 +105,13 @@ As developing tools for testing and firmware configuration, three pieces of soft
 \newline
 
 \section{Software developed}
-The main aim of software development during this project was to drive motors using the Dshot protocol and obtain the telemetry packet to analyze responses and the feasibility of feedback control. The structure of data flow is color coded in Figure \ref{fig:data_flow}. Gray represents hardware, blue shows software packages, orange indicates forward control data, green represents backward measured data. Lastly, it shows the protocols used for data transfer  at the bottom. Furthermore, the source code can be found at: \newline
+The main aim of software development during this project was to drive motors using the Dshot protocol and obtain the telemetry packet to analyze responses and the feasibility of feedback control. The structure of data flow is color coded in Figure \ref{fig:data_flow}. It shows the protocols used for data transfer  at the bottom. Furthermore, the source code can be found at: \newline
 \url{https://github.com/faustoTapia/px4_sem_project.git}.
 
 \begin{figure} 
     \centering
     \includegraphics[width=1.0\textwidth]{images/data_flow_diagram.PNG}
-    \caption{General Data Flow}
+    \caption{General Data Flow. Gray represents hardware, blue shows software packages, orange indicates forward control data, green represents backward measured data}
     \label{fig:data_flow}
 \end{figure}
 
@@ -156,9 +156,9 @@ A graphical representation of the functionalities added to PX4 is shown in Figur
 \section{Setup limitations}
 Given the chosen hardware and firmware, specially the restriction to use a Pixhawk 4 flight controller gave a couple of limitations in when integrating the system. The most important ones are listed below:
 \begin{itemize}
-	\item Digital Dshot based protocols imply relatively high CPU usage in the micro-controller. Therefore, the software implementations use Direct Memory Access (DMA) to enable fast enough scheduling to write Dshot signals. In the case of the PX4 it only has 2 DMAs that can each be used to run 4 Dshot signal generation ports. Hence, the PX4 implementation allows for immediate 4 motor support but with some modifications up to 8 motors.
+	\item Digital Dshot based protocols imply relatively high CPU usage in the micro-controller due to their pulse length being very small (at most $6\mu s$ as opposed to $2000\mu s$ in RCPWM). Therefore, the software implementations use Direct Memory Access (DMA) to enable fast enough scheduling to write Dshot signals. In the case of the PX4 it only has 2 DMAs that can each be used to run 4 Dshot signal generation ports. Hence, the PX4 implementation allows for immediate 4 motor support but with some modifications up to 8 motors.
 
-	\item The more sophisticated digital protocol Bidirectional Dshot would be the way of avoiding telemetry line sharing that happens in regular Dshot. Therefore, increasing the telemetry speed significantly. However, PX4 does not support this protocol and it seems like it does not want to move in that direction.
+	\item The more sophisticated digital protocol Bidirectional Dshot would be the way of avoiding telemetry line sharing that happens in regular Dshot. Consequently, telemetry speed increases significantly. However, PX4 does not support this protocol and it seems like it does not want to move in that direction.
 
 
 

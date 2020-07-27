@@ -8,9 +8,9 @@ In the past decade, multi-copter type drones have been developed and spread all 
     \label{fig: mav_photo}
 \end{figure}
 
-Although this novel setup is highly versatile, the current rotor speed control implementation is open-loop, assuming relatively accurate and linear throttle to actual rotor speed mapping. Furthermore, the high number of propellers increases the chance of an individual failure on flight, requiring status information to be sent towards the flight controller (FC). Another important consideration is the aerodynamic interference between coaxial propellers, which surely causes disturbances leading to slower tracking. The extend of this disturbances is still unknown. Therefore, \cite{Bodie_pre_release_2020} recommends to perform a more thorough identification of this OMAV dynamics to decrease disturbances during optimal control design.
+Although this novel setup is highly versatile, the current rotor speed control implementation is open-loop, assuming relatively accurate and linear throttle to actual rotor speed mapping. Furthermore, the high number of propellers increases the chance of an individual failure on flight, requiring status information to be sent towards the flight controller (FC). Another important consideration is the aerodynamic interference between coaxial propellers, which surely causes disturbances leading to slower tracking. The extent of these disturbances is still unknown. Therefore, \cite{Bodie_pre_release_2020} recommends to perform a more thorough identification of this OMAV dynamics to decrease disturbances during optimal control design.\\
 
-\textit{Objectives} In this context, this report will describe my work during my semester project with the following objectives:
+\textit{Objectives}. In this context, this report will describe my work during my semester project with the following objectives:
 \begin{itemize}
     \item Familiarize with current firmware available for FC-ESC communication.
     \item Achieve rotor speed feedback from the ESC to the FC.
